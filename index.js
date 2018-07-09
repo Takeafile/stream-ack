@@ -72,7 +72,7 @@ class ACK extends Duplex
 
   _write(chunk, _, callback)
   {
-    const {_idField, _duplex, _sended} = this
+    const {_idField, _sended} = this
 
     const id = chunk[_idField]
 

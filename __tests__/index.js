@@ -103,7 +103,6 @@ describe('Duplex closed', function()
 
     src.pipe(ack)
 
-//    step++
     ack.write(sended)
   })
 })
