@@ -36,6 +36,8 @@ class ACK extends Duplex
       if(!_src) return this.emit('error',
         new ReferenceError("`src` stream not found, can't unshift chunks"))
 
+      _src.unpipe(this)
+
       for(const value of values.reverse()) _src.unshift(value)
 
       this._sended = {}
