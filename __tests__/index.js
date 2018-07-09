@@ -18,7 +18,7 @@ test('basic', function(done)
         case 0:
           expect(chunk).toBe(sended)
 
-          expect(ack._sended).toEqual({0: sended})
+          expect(ack._sended.get('0')).toEqual(sended)
 
           step++
         break;
@@ -28,7 +28,7 @@ test('basic', function(done)
 
           setImmediate(function()
           {
-            expect(ack._sended).toEqual({})
+            expect(ack._sended.size).toBe(0)
 
             done()
           })

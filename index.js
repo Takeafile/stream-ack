@@ -15,7 +15,7 @@ class ACK extends Duplex
 
     const regExp = new RegExp(`${ackPrefix}(.+)`)
 
-    this._sended = {}
+    const sended = new Map
 
     this.on('pipe', src =>
     {
@@ -28,31 +28,27 @@ class ACK extends Duplex
 
     duplex.on('close', () =>
     {
-      const {_sended, _src} = this
+      const {_src} = this
 
-      const values = Object.values(_sended)
-      if(!values.length) return
+      if(!sended.size) return
 
       if(!_src) return this.emit('error',
         new ReferenceError("`src` stream not found, can't unshift chunks"))
 
       _src.unpipe(this)
 
-      for(const value of values.reverse()) _src.unshift(value)
+      for(const value of Array.from(sended.values()).reverse())
+        _src.unshift(value)
 
-      this._sended = {}
+      sended.clear()
     })
     .on('data', data =>
     {
       if(typeof data === 'string')
       {
         const match = data.match(regExp)
-        if(match)
-        {
-          delete this._sended[match[1]]
 
-          return
-        }
+        if(match) return sended.delete(match[1])
       }
 
       write.call(this, `${ackPrefix}${data[idField]}`)
@@ -63,6 +59,7 @@ class ACK extends Duplex
 
     this._duplex  = duplex
     this._idField = idField
+    this._sended  = sended
   }
 
   _read()
@@ -74,11 +71,12 @@ class ACK extends Duplex
   {
     const {_idField, _sended} = this
 
-    const id = chunk[_idField]
+    const id = chunk[_idField].toString()
 
-    if(_sended[id]) return callback(new ReferenceError('Duplicated chunk ID'))
+    if(_sended.has(id))
+      return callback(new ReferenceError('Duplicated chunk ID'))
 
-    _sended[id] = chunk
+    _sended.set(id, chunk)
 
     write.call(this, chunk)
 
