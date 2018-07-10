@@ -88,18 +88,18 @@ describe('Duplex closed', function()
 
         this.destroy()
 
-        this.on('close', function()
-        {
-          expect(src._readableState.buffer).toEqual({
-            head: {"data": sended, "next": null},
-            length: 1,
-            tail: {"data": sended, "next": null}
-          })
-
-          done()
-        })
       }
     }))
+    .on('close', function()
+    {
+      expect(src._readableState.buffer).toEqual({
+        head: {"data": sended, "next": null},
+        length: 1,
+        tail: {"data": sended, "next": null}
+      })
+
+      done()
+    })
 
     src.pipe(ack)
 

@@ -17,16 +17,8 @@ class ACK extends Duplex
 
     const sended = new Map
 
-    this.on('pipe', src =>
-    {
-      if(this._src) return this.emit('error',
-        new ReferenceError("Can't pipe from more than one `src` stream"))
-
-      this._src = src
-    })
-    .on('unpipe', () => delete this._src)
-
-    duplex.on('close', () =>
+    this
+    .once('close', () =>
     {
       const {_src} = this
 
@@ -42,6 +34,17 @@ class ACK extends Duplex
 
       sended.clear()
     })
+    .on('pipe', src =>
+    {
+      if(this._src) return this.emit('error',
+        new ReferenceError("Can't pipe from more than one `src` stream"))
+
+      this._src = src
+    })
+    .on('unpipe', () => delete this._src)
+
+    duplex
+    .once('close', this.emit.bind(this, 'close'))
     .on('data', data =>
     {
       if(typeof data === 'string')
