@@ -89,7 +89,8 @@ Sender.receiver = function(writable, {ackPrefix = 'ack', idField = 'id', ...opti
     transform(chunk, _, callback)
     {
       // Not checking if `writable` accept more data doesn't hurt too much here
-      writable.write(`${ackPrefix}${chunk[idField]}`)
+      const id = chunk[idField]
+      if(id != null) writable.write(`${ackPrefix}${id}`)
 
       callback(null, chunk)
     }
