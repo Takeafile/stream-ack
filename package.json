@@ -1,14 +1,14 @@
 {
-  "name": "duplex-ack",
+  "name": "stream-ack",
   "version": "0.0.0",
-  "description": "ACK data chunks send over a Node.js `Duplex` stream",
+  "description": "ACK data chunks send over a Node.js stream",
   "main": "index.js",
   "scripts": {
     "test": "jest --notify --coverage"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/piranna/duplex-ack.git"
+    "url": "git+ssh://git@bitbucket.org/piranna/stream-ack.git"
   },
   "keywords": [
     "ACK",
@@ -20,7 +20,7 @@
   ],
   "author": "Jesús Leganés-Combarro 'piranna' <piranna@gmail.com>",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/piranna/duplex-ack#readme",
+  "homepage": "https://bitbucket.org/piranna/stream-ack#readme",
   "devDependencies": {
     "jest": "^23.3.0"
   }

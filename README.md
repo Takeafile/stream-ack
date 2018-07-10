@@ -1,3 +1,3 @@
-# duplex-ack
+# stream-ack
 
-ACK data chunks send over a Node.js `Duplex` stream
+ACK data chunks send over a Node.js stream
