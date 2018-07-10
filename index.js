@@ -59,6 +59,7 @@ class ACK extends Duplex
       if(!this.push(data)) duplex.pause()
     })
     .on('drain', process.nextTick.bind(process, this.uncork.bind(this)))
+    .once('finish', this.emit.bind(this, 'finish'))
 
     this._duplex  = duplex
     this._idField = idField
