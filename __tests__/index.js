@@ -1,6 +1,6 @@
 const {Readable, Transform, Writable} = require('stream')
 
-const ACK = require('..')
+const Sender = require('..')
 
 
 test('basic', function(done)
@@ -9,7 +9,7 @@ test('basic', function(done)
 
   let step = 0
 
-  const ack = new ACK(new Transform({
+  const duplex = new Transform({
     objectMode: true,
     transform(chunk, _, callback)
     {
@@ -18,7 +18,7 @@ test('basic', function(done)
         case 0:
           expect(chunk).toBe(sended)
 
-          expect(ack._sended.get('0')).toEqual(sended)
+          expect(sender._sended.get('0')).toEqual(sended)
 
           step++
         break;
@@ -28,7 +28,7 @@ test('basic', function(done)
 
           setImmediate(function()
           {
-            expect(ack._sended.size).toBe(0)
+            expect(sender._sended.size).toBe(0)
 
             done()
           })
@@ -36,11 +36,14 @@ test('basic', function(done)
 
       callback(null, chunk)
     }
-  }))
+  })
 
-  ack.write(sended)
+  const sender = new Sender(duplex)
 
-  ack.on('data', function(data)
+  sender.write(sended)
+
+  sender.pipe(Sender.receiver(duplex))
+  .on('data', function(data)
   {
     expect(data).toBe(sended)
   })
@@ -52,7 +55,7 @@ describe('Duplex closed', function()
 
   test('No src stream', function(done)
   {
-    const ack = new ACK(new Writable({
+    const sender = new Sender(new Writable({
       objectMode: true,
       write(chunk)
       {
@@ -62,9 +65,9 @@ describe('Duplex closed', function()
       }
     }))
 
-    ack.write(sended)
+    sender.write(sended)
 
-    ack.on('error', function(error)
+    sender.on('error', function(error)
     {
       expect(error).toBeInstanceOf(ReferenceError)
       expect(error.message).toBe("`src` stream not found, can't unshift chunks")
@@ -80,14 +83,13 @@ describe('Duplex closed', function()
       read(){}
     })
 
-    const ack = new ACK(new Writable({
+    const sender = new Sender(new Writable({
       objectMode: true,
       write(chunk)
       {
         expect(chunk).toBe(sended)
 
         this.destroy()
-
       }
     }))
     .on('close', function()
@@ -101,8 +103,8 @@ describe('Duplex closed', function()
       done()
     })
 
-    src.pipe(ack)
+    src.pipe(sender)
 
-    ack.write(sended)
+    sender.write(sended)
   })
 })

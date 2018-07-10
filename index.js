@@ -1,13 +1,7 @@
-const {Duplex} = require('stream')
+const {Duplex, Transform} = require('stream')
 
 
-function write(data)
-{
-  if(!this._duplex.write(data)) this.cork()
-}
-
-
-class ACK extends Duplex
+class Sender extends Duplex
 {
   constructor(duplex, {ackPrefix = 'ack', idField = 'id', ...options} = {})
   {
@@ -54,8 +48,6 @@ class ACK extends Duplex
         if(match) return sended.delete(match[1])
       }
 
-      write.call(this, `${ackPrefix}${data[idField]}`)
-
       if(!this.push(data)) duplex.pause()
     })
     .on('drain', process.nextTick.bind(process, this.uncork.bind(this)))
@@ -73,7 +65,7 @@ class ACK extends Duplex
 
   _write(chunk, _, callback)
   {
-    const {_idField, _sended} = this
+    const {_duplex, _idField, _sended} = this
 
     const id = chunk[_idField].toString()
 
@@ -82,11 +74,27 @@ class ACK extends Duplex
 
     _sended.set(id, chunk)
 
-    write.call(this, chunk)
+    if(!_duplex.write(chunk)) this.cork()
 
     callback()
   }
 }
 
 
-module.exports = ACK
+Sender.receiver = function(writable, {ackPrefix = 'ack', idField = 'id', ...options} = {})
+{
+  return new Transform({
+    ...options,
+    objectMode: true,
+    transform(chunk, _, callback)
+    {
+      // Not checking if `writable` accept more data doesn't hurt too much here
+      writable.write(`${ackPrefix}${chunk[idField]}`)
+
+      callback(null, chunk)
+    }
+  })
+}
+
+
+module.exports = Sender
