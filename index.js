@@ -67,12 +67,16 @@ class Sender extends Duplex
   {
     const {_duplex, _idField, _sended} = this
 
-    const id = chunk[_idField].toString()
+    let id = chunk[_idField]
+    if(id != null)
+    {
+      id = id.toString()
 
-    if(_sended.has(id))
-      return callback(new ReferenceError('Duplicated chunk ID'))
+      if(_sended.has(id))
+        return callback(new ReferenceError('Duplicated chunk ID'))
 
-    _sended.set(id, chunk)
+      _sended.set(id, chunk)
+    }
 
     if(!_duplex.write(chunk)) this.cork()
 
