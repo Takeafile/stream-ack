@@ -22,11 +22,6 @@ class Sender extends Duplex
         new ReferenceError("`src` stream not found, can't unshift chunks"))
 
       _src.unpipe(this)
-
-      for(const value of Array.from(sended.values()).reverse())
-        _src.unshift(value)
-
-      sended.clear()
     })
     .on('pipe', src =>
     {
@@ -35,7 +30,17 @@ class Sender extends Duplex
 
       this._src = src
     })
-    .on('unpipe', () => delete this._src)
+    .on('unpipe', () =>
+    {
+      const {_src} = this
+
+      delete this._src
+
+      for(const [id, value] of Array.from(inFlight.entries()).reverse())
+        _src.unshift(value)
+
+      sended.clear()
+    })
 
     duplex
     .once('close', this.emit.bind(this, 'close'))
