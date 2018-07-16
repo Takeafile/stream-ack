@@ -51,7 +51,8 @@ class Sender extends Duplex
       if(!this.push(data)) duplex.pause()
     })
     .on('drain', process.nextTick.bind(process, this.uncork.bind(this)))
-    .once('finish', this.emit.bind(this, 'finish'))
+    .on('error', this.emit.bind(this, 'error'))
+    .once('finish', this.end.bind(this))
 
     this._duplex  = duplex
     this._idField = idField
