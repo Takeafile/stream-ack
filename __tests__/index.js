@@ -1,6 +1,6 @@
 const {Readable, Transform, Writable} = require('stream')
 
-const Sender = require('..')
+const {Duplex, receiver, Sender} = require('..')
 
 
 test('basic', function(done)
@@ -18,7 +18,7 @@ test('basic', function(done)
         case 0:
           expect(chunk).toBe(sended)
 
-          expect(sender._sended.get('0')).toEqual(sended)
+          expect(sender._inFlight.get('0')).toEqual(sended)
 
           step++
         break;
@@ -28,7 +28,7 @@ test('basic', function(done)
 
           setImmediate(function()
           {
-            expect(sender._sended.size).toBe(0)
+            expect(sender._inFlight.size).toBe(0)
 
             done()
           })
@@ -38,11 +38,11 @@ test('basic', function(done)
     }
   })
 
-  const sender = new Sender(duplex)
+  const sender = new Duplex(duplex)
 
   sender.write(sended)
 
-  sender.pipe(Sender.receiver(duplex))
+  sender.pipe(receiver(duplex))
   .on('data', function(data)
   {
     expect(data).toBe(sended)

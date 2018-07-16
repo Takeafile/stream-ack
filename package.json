@@ -2,7 +2,7 @@
   "name": "stream-ack",
   "version": "0.0.0",
   "description": "ACK data chunks send over a Node.js stream",
-  "main": "index.js",
+  "main": "lib",
   "scripts": {
     "test": "jest --notify --coverage"
   },
