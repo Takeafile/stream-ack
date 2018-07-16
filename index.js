@@ -9,14 +9,14 @@ class Sender extends Duplex
 
     const regExp = new RegExp(`${ackPrefix}(.+)`)
 
-    const sended = new Map
+    const inFlight = new Map
 
     this
     .once('close', () =>
     {
       const {_src} = this
 
-      if(!sended.size) return
+      if(!inFlight.size) return
 
       if(!_src) return this.emit('error',
         new ReferenceError("`src` stream not found, can't unshift chunks"))
@@ -37,9 +37,13 @@ class Sender extends Duplex
       delete this._src
 
       for(const [id, value] of Array.from(inFlight.entries()).reverse())
+      {
+        this.emit('landed', id, value)
         _src.unshift(value)
+      }
 
-      sended.clear()
+      inFlight.clear()
+      this.emit('allLanded')
     })
 
     duplex
@@ -50,7 +54,17 @@ class Sender extends Duplex
       {
         const match = data.match(regExp)
 
-        if(match) return sended.delete(match[1])
+        if(match)
+        {
+          const [_, id] = match
+
+          this.emit('landed', id, inFlight.get(id))
+          inFlight.delete(id)
+
+          if(!inFlight.size) this.emit('allLanded')
+
+          return
+        }
       }
 
       if(!this.push(data)) duplex.pause()
@@ -61,7 +75,7 @@ class Sender extends Duplex
 
     this._duplex  = duplex
     this._idField = idField
-    this._sended  = sended
+    this._inFlight  = inFlight
   }
 
   _read()
@@ -71,17 +85,18 @@ class Sender extends Duplex
 
   _write(chunk, _, callback)
   {
-    const {_duplex, _idField, _sended} = this
+    const {_duplex, _idField, _inFlight} = this
 
     let id = chunk[_idField]
     if(id != null)
     {
       id = id.toString()
 
-      if(_sended.has(id))
+      if(_inFlight.has(id))
         return callback(new ReferenceError('Duplicated chunk ID'))
 
-      _sended.set(id, chunk)
+      _inFlight.set(id, chunk)
+      this.emit('inFlight', id, chunk)
     }
 
     if(!_duplex.write(chunk)) this.cork()
