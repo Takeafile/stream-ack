@@ -87,6 +87,8 @@ class Sender extends Duplex
 
 Sender.receiver = function(writable, {ackPrefix = 'ack', idField = 'id', ...options} = {})
 {
+  if(!writable.writable) throw TypeError('`writable` stream is not writable')
+
   return new Transform({
     ...options,
     objectMode: true,
