@@ -22,7 +22,7 @@
   "license": "ISC",
   "homepage": "https://github.com/Takeafile/stream-ack#readme",
   "devDependencies": {
-    "jest": "^23.4.2"
+    "jest": "^23.6.0"
   },
   "jest": {
     "testEnvironment": "node"
