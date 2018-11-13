@@ -63,7 +63,7 @@ describe('Duplex closed', function()
 
         this.destroy()
       }
-    }))
+    }), new Map)
 
     sender.write(sended)
 
@@ -91,7 +91,7 @@ describe('Duplex closed', function()
 
         this.destroy()
       }
-    }))
+    }), new Map)
     .on('close', function()
     {
       expect(src._readableState.buffer).toEqual({
