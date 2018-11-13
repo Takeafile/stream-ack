@@ -4,6 +4,7 @@
   "description": "ACK data chunks send over a Node.js stream",
   "main": "lib",
   "scripts": {
+    "coverage": "npm test -- --coverageReporters=text-lcov | coveralls",
     "test": "jest --notify --coverage"
   },
   "repository": {
@@ -22,6 +23,7 @@
   "license": "ISC",
   "homepage": "https://github.com/Takeafile/stream-ack#readme",
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "jest": "^23.6.0"
   },
   "jest": {
