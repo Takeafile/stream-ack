@@ -1,6 +1,6 @@
 const {Readable, Transform, Writable} = require('stream')
 
-const {Duplex, receiver, Sender} = require('..')
+const {duplex, receiver, Sender} = require('..')
 
 
 test('basic', function(done)
@@ -9,7 +9,7 @@ test('basic', function(done)
 
   let step = 0
 
-  const duplex = new Transform({
+  const stream = new Transform({
     objectMode: true,
     transform(chunk, _, callback)
     {
@@ -38,11 +38,11 @@ test('basic', function(done)
     }
   })
 
-  const sender = new Duplex(duplex)
+  const sender = new duplex(stream)
 
   sender.write(sended)
 
-  sender.pipe(receiver(duplex))
+  sender.pipe(receiver(stream))
   .on('data', function(data)
   {
     expect(data).toBe(sended)
