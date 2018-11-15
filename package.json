@@ -1,6 +1,6 @@
 {
   "name": "stream-ack",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "ACK data chunks send over a Node.js stream",
   "main": "lib",
   "scripts": {
