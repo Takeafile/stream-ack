@@ -30,6 +30,6 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "duplexify": "^3.6.1"
+    "duplexify": "^4.0.0"
   }
 }
